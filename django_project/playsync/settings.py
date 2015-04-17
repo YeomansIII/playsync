@@ -19,13 +19,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '*-7tee)3#+7c@b@-wqbvm)(6jae!i8m3q@&f*4ki5punyl!je-'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+import config
+DEBUG = config.DEBUG
+TEMPLATE_DEBUG = config.TEMPLATE_DEBUG
+ALLOWED_HOSTS = config.ALLOWED_HOSTS
 
 
 # Application definition
@@ -74,18 +72,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'playsync.wsgi.application'
 
 
+import secret
 # Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = secret.SECRET_KEY
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'playsync',
-        'USER': 'django',
-        'PASSWORD': 'testpass',
-        'HOST': 'localhost',
-        'PORT': '',
-    }
+        'NAME': secret.DB_NAME,
+        'USER': secret.DB_USER,
+        'PASSWORD': secret.DB_PASSWORD,
+        'HOST': secret.DB_HOST,
+        'PORT': secret.DB_PORT,
+    },
 }
 
 
