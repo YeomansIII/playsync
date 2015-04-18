@@ -10,6 +10,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -46,7 +48,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends Activity implements
-        PlayerNotificationCallback, ConnectionStateCallback {
+        PlayerNotificationCallback, ConnectionStateCallback, WifiP2pManager.PeerListListener {
 
     //URLS
     private static final String MYIDBASEURL="http://10.158.38.56:8999/apiv1/mylistenerid/";
@@ -88,6 +90,7 @@ public class MainActivity extends Activity implements
     String myListenerId;
     private String trackUri;
     private ArrayList<TextView> songListArr;
+    private ArrayList<TextView> deviceListArr;
 
     String regid;
 
@@ -125,7 +128,7 @@ public class MainActivity extends Activity implements
 
         // Check device for Play Services APK. If check succeeds, proceed with
         //  GCM registration.
-        if (checkPlayServices()) {
+        /*if (checkPlayServices()) {
             gcm = GoogleCloudMessaging.getInstance(this);
             regid = getRegistrationId(context);
 
@@ -134,7 +137,7 @@ public class MainActivity extends Activity implements
             }
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
-        }
+        }*/
     }
 
     @Override
@@ -336,7 +339,7 @@ public class MainActivity extends Activity implements
 
         if (view == findViewById(R.id.requestButton)) {
             Log.d("GET", "Request Button");
-            EditText friendId = (EditText) findViewById(R.id.friendId);
+        /*    EditText friendId = (EditText) findViewById(R.id.friendId);
             EditText songText = (EditText) findViewById(R.id.songText);
 
             if (!friendId.equals("") && trackUri!=null) {
@@ -384,7 +387,7 @@ public class MainActivity extends Activity implements
                 friendId.requestFocus();
                 (findViewById(R.id.friendIdLabel)).setBackgroundColor(Color.RED);
                 (findViewById(R.id.songLabel)).setBackgroundColor(Color.RED);
-            }
+            }*/
         } else if(view == findViewById(R.id.songSearch)) {
             Log.d("GET","Song Search");
             searchSongs(""+((TextView)findViewById(R.id.songText)).getText());
@@ -529,11 +532,30 @@ public class MainActivity extends Activity implements
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-
-
-
         return "";
     }
 
+    @Override
+    public void onPeersAvailable(WifiP2pDeviceList peers) {
+        Log.d("P2P","Peers available");
+        LinearLayout deviceList = (LinearLayout)findViewById(R.id.deviceList);
+        deviceListArr = new ArrayList<TextView>();
+        for(WifiP2pDevice peer : peers.getDeviceList()) {
+            TextView tv = new TextView(getApplicationContext());
+            tv.setText(peer.deviceName);
+            tv.setTag(peer.deviceAddress);
+            tv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    trackUri = (String)v.getTag();
+                    for(TextView view : songListArr) {
+                        view.setBackgroundColor(Color.TRANSPARENT);
+                    }
+                    v.setBackgroundColor(Color.GRAY);
+                }
+            });
+            deviceListArr.add(tv);
+            deviceList.addView(tv);
+        }
+    }
 }
